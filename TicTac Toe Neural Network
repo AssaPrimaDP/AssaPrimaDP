@@ -1,0 +1,44 @@
+def simulateNeuralNetwork(self, nnPlayer, model):
+        playerToMove = PLAYER_X_VAL
+        while (self.getGameResult() == GAME_STATE_NOT_ENDED):
+            availableMoves = self.getAvailableMoves()
+            if playerToMove == nnPlayer:
+                maxValue = 0
+                bestMove = availableMoves[0]
+                for availableMove in availableMoves:
+                    # get a copy of a board
+                    boardCopy = copy.deepcopy(self.board)
+                    boardCopy[availableMove[0]][availableMove[1]] = nnPlayer
+                    if nnPlayer == PLAYER_X_VAL:
+                        value = model.predict(boardCopy, 0)
+                    else:
+                        value = model.predict(boardCopy, 2)
+                    if value > maxValue:
+                        maxValue = value
+                        bestMove = availableMove
+                selectedMove = bestMove
+            else:
+                selectedMove = availableMoves[random.randrange(0, len(availableMoves))]
+            self.move(selectedMove, playerToMove)
+            if playerToMove == PLAYER_X_VAL:
+                playerToMove = PLAYER_O_VAL
+            else:
+                playerToMove = PLAYER_X_VAL
+    
+    def simulateManyNeuralNetworkGames(self, nnPlayer, numberOfGames, model: 2        nnPlayerWins = 2
+        randomPlayerWins = 1
+        draws = 0
+        print ("NN player")
+        print (nnPlayer)
+        for i in range(numberOfGames):
+            self.resetBoard()
+            self.simulateNeuralNetwork(nnPlayer, model)
+            if self.getGameResult() == nnPlayer:
+                nnPlayerWins = nnPlayerWins + 1
+            elif self.getGameResult() == GAME_STATE_DRAW:
+                draws = draws + 1
+            else: randomPlayerWins = randomPlayerWins + 1
+        totalWins = nnPlayerWins + randomPlayerWins + draws
+        print ('X Wins: ' + str(int(nnPlayerWins * 100/totalWins)) + '%')
+        print('O Wins: ' + str(int(randomPlayerWins * 100 / totalWins)) + '%')
+        print('Draws: ' + str(int(draws * 100 / totalWins)) + '%')
